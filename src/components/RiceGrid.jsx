@@ -107,7 +107,7 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
 
   return (
     <div>
-      <div className="relative z-40 py-3 border-y border-white/5 bg-[#0e0e10] mb-8">
+      <div className="relative z-40 py-3 border-y border-white/5 bg-[#050505] mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-1">
             {SORT_OPTIONS.map(({ label, value, icon }) => (
