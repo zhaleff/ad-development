@@ -7,7 +7,11 @@ One thing worth noting upfront: most of the early commit history looks sparse be
 I don't commit every single line change. I commit when something meaningful is done.
 
 > [!NOTE]
->This is a hobby project. I don't have the time to read insults from people who focus more on insulting me than guiding me. If you complain so much about how I program or accuse me of using artificial intelligence, then don't waste your time insulting me and help me instead, don't you think? Teaching is an important step in learning, but insults exist to belittle the work of others. If you don't intend to help, then keep the insults to yourself.
+> This is a hobby project, built out of curiosity and a genuine love for the Linux community. If something looks wrong to you — the architecture, the code style, the tooling choices — you're welcome to say so and explain why. That's how things improve.
+>
+> What doesn't help is hostility. Insulting someone's work without offering anything constructive isn't criticism, it's just noise. If your first instinct when seeing code you disagree with is to mock it rather than explain it, then this isn't the right place for you.
+>
+> Teaching takes effort. So does learning. Both require a baseline of respect. If you're not willing to meet that bar, please keep it to yourself.
 
 &nbsp;
 
