@@ -7,16 +7,7 @@ One thing worth noting upfront: most of the early commit history looks sparse be
 I don't commit every single line change. I commit when something meaningful is done.
 
 > [!NOTE]
-> This is a hobby project. Contributions are welcome, insults are not.
-
-> [!WARNING]
-> No changes are merged into master without review first.
-
-> [!IMPORTANT]
-> Always work on a separate branch, never directly on master.
-
-> [!TIP]
-> If you find a bug, open an issue before submitting a fix.
+>This is a hobby project. I don't have the time to read insults from people who focus more on insulting me than guiding me. If you complain so much about how I program or accuse me of using artificial intelligence, then don't waste your time insulting me and help me instead, don't you think? Teaching is an important step in learning, but insults exist to belittle the work of others. If you don't intend to help, then keep the insults to yourself.
 
 &nbsp;
 
