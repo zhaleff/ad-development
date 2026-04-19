@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Lato', ui-sans-serif, system-ui, sans-serif;
+
 
   --color-accent: #e8ff47;
-  --color-accent-dim: #6355d4;
   --color-surface: #050505;
   --color-surface-2: ##1a1918;
   --color-surface-3: #1f1f23;

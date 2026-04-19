@@ -33,16 +33,19 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c] border-b border-white/5">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-
           <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
             <img src={logo} alt="logo" className="h-7 w-auto object-contain" />
-            <span className="text-white">Awesome Dotfiles</span>
+            <span
+              className="text-white font-semibold text-[15px] tracking-wide"
+              style={{ fontFamily: "'Lato', sans-serif" }}
+            >
+              Awesome <span className="text-[#e8ff47]">Dotfiles</span>
+            </span>
           </Link>
-
           <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {navLinks.map(({ label, to }) => (
               <NavLink key={label} to={to} end className={({ isActive }) => clsx(
-                'px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-full',
+                'px-4 py-1.5 text-sm font-semibold tracking-wide rounded-full',
                 isActive ? 'bg-[#e8ff47] text-black' : 'text-white/40 hover:text-white hover:bg-white/5'
               )}>
                 {label}
@@ -83,7 +86,7 @@ export default function Navbar() {
 
             <Link
               to="/submit"
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-[10px] font-black uppercase tracking-[0.15em] transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#e8ff47] hover:bg-[#d4eb30] text-black font-bold tracking-wide text-sm"
             >
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-2.5 h-2.5" />
               Share your build
@@ -105,8 +108,6 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-
-        {/* BUSCADOR VERSIÓN MÓVIL */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -118,7 +119,7 @@ export default function Navbar() {
             >
               <div className="px-4 py-3">
                 <input
-                  ref={searchRef} // <-- Añadido aquí para que el auto-focus funcione también en móvil
+                  ref={searchRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -130,7 +131,6 @@ export default function Navbar() {
           )}
         </AnimatePresence>
       </header>
-
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -144,7 +144,7 @@ export default function Navbar() {
             <nav className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col gap-1">
               {navLinks.map(({ label, to }) => (
                 <NavLink key={label} to={to} end className={({ isActive }) => clsx(
-                  'px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-colors',
+                  'px-3 py-2 rounded-full font-black',
                   isActive ? 'bg-[#e8ff47] text-black' : 'text-white/40 hover:text-white hover:bg-white/5'
                 )}>
                   {label}
@@ -153,7 +153,7 @@ export default function Navbar() {
               <div className="pt-2 mt-1 border-t border-white/5">
                 <Link
                   to="/submit"
-                  className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-[10px] font-black uppercase tracking-[0.15em] transition-colors"
+                  className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-sm font-bold tracking-wide"
                 >
                   <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-2.5 h-2.5" />
                   Share your build
