@@ -53,7 +53,7 @@ function Dropdown({ label, options, value, onChange }) {
                   <button
                     onClick={() => { onChange(opt); setOpen(false) }}
                     className={clsx(
-                      'w-full text-left px-3 py-2 rounded-lg text-xs transition-colors',
+                      'w-full text-left px-3 py-2 rounded-full text-xs transition-colors',
                       value === opt ? 'bg-[#e8ff47]/10 text-[#e8ff47]' : 'text-white/40 hover:text-white hover:bg-white/5'
                     )}
                   >
@@ -109,13 +109,13 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
     <div>
       <div className="relative z-40 py-3 border-y border-white/5 bg-[#050505] mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-full p-1">
             {SORT_OPTIONS.map(({ label, value, icon }) => (
               <button
                 key={value}
                 onClick={() => setSort(value)}
                 className={clsx(
-                  'flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-medium transition-all',
+                  'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all',
                   sort === value ? 'bg-white/10 text-[#e8ff47]' : 'text-white/30 hover:text-white'
                 )}
               >
