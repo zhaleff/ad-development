@@ -6,6 +6,18 @@ One thing worth noting upfront: most of the early commit history looks sparse be
 
 I don't commit every single line change. I commit when something meaningful is done.
 
+> [!NOTE]
+> This is a hobby project. Contributions are welcome, insults are not.
+
+> [!WARNING]
+> No changes are merged into master without review first.
+
+> [!IMPORTANT]
+> Always work on a separate branch, never directly on master.
+
+> [!TIP]
+> If you find a bug, open an issue before submitting a fix.
+
 &nbsp;
 
 # Contributing
