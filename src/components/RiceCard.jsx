@@ -14,7 +14,7 @@ export default function RiceCard({ rice, index = 0 }) {
     >
       <Link
         to={`/rice/${rice.id}`}
-        className="group block bg-[var(--color-surface-2)] border border-white/5 hover:border-[#e8ff47]/30 transition-all duration-300 rounded-xl overflow-hidden"
+        className="group block bg-[var(--color-surface-2)] border border-white/5 hover:border-[#e8ff47]/30 rounded-lg overflow-hidden"
       >
         <div className="aspect-video overflow-hidden relative bg-black">
           {rice.imageUrl ? (
@@ -26,7 +26,7 @@ export default function RiceCard({ rice, index = 0 }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-[10px] text-white/10 uppercase tracking-widest">no preview</span>
+              <span className="text-[10px] text-white/10 ">no preview</span>
             </div>
           )}
           {rice.wm && (
@@ -37,7 +37,7 @@ export default function RiceCard({ rice, index = 0 }) {
         </div>
         <div className="p-4 flex flex-col gap-2.5">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1 group-hover:text-[#e8ff47] transition-colors">
+            <h3 className="text-sm font-medium text-white leading-snug line-clamp-1 group-hover:text-[#e8ff47]">
               {rice.title}
             </h3>
             {rice.palette?.length > 0 && (
@@ -50,7 +50,7 @@ export default function RiceCard({ rice, index = 0 }) {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-[9px] font-bold text-[#e8ff47] uppercase">
+              <div className="w-5 h-5 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-[9px] font-medium text-[#e8ff47]">
                 {rice.author?.[0] ?? '?'}
               </div>
               <span className="text-xs text-white/30 group-hover:text-white/60 transition-colors">

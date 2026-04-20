@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeart } from '@fortawesome/free-solid-svg-icons'
 import { faGithub, faRedditAlien } from '@fortawesome/free-brands-svg-icons'
@@ -23,7 +24,7 @@ export default function Footer() {
               <div className="absolute -inset-1 bg-[#e8ff47]/10 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-all"></div>
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-black tracking-tighter text-white uppercase leading-none">
+              <span className="text-lg font-bold tracking-wide  text-white  leading-none">
                 Awesome<span className="text-[#e8ff47]">Dotfiles</span>
               </span>
               <span className="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase mt-1">the.index.v2</span>
@@ -32,8 +33,7 @@ export default function Footer() {
 
           <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs font-bold uppercase tracking-widest text-white/30">
             <li><Link to="/" className="hover:text-[#e8ff47] transition-colors">Gallery</Link></li>
-            <li><Link to="/recent" className="hover:text-[#e8ff47] transition-colors">Recent</Link></li>
-            <li><a href="https://reddit.com/r/unixporn" target="_blank" rel="noreferrer" className="hover:text-[#e8ff47] transition-colors">r/unixporn</a></li>
+            <li><Link to="/about" className="hover:text-[#e8ff47] transition-colors">About</Link></li>
             <li><Link to="/submit" className="text-[#e8ff47]/60 hover:text-[#e8ff47]">Submit rice</Link></li>
           </ul>
 
@@ -43,11 +43,14 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <a href="https://github.com/zhaleff/Awesome-Dotfiles" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white transition-all text-xl">
+            <a href="https://github.com/zhaleff/Awesome-Dotfiles" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white text-xl">
               <FontAwesomeIcon icon={faGithub} />
             </a>
-            <a href="https://reddit.com/r/unixporn" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white transition-all text-xl">
+            <a href="https://reddit.com/r/unixporn" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white text-xl">
               <FontAwesomeIcon icon={faRedditAlien} />
+            </a>
+            <a href="https://github.com/zhaleff/ad-development" target="_blank" rel="noreferrer" className="text-white/20 hover:text-white text-xl">
+              <FontAwesomeIcon icon={faCode} />
             </a>
             <span className="text-[10px] font-mono text-white/10 ml-2 tracking-tighter">
               © {year} ARCHIVE_ZHALEFF. ALL_RIGHTS_RESERVED.

@@ -36,7 +36,7 @@ export default function Navbar() {
           <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
             <img src={logo} alt="logo" className="h-7 w-auto object-contain" />
             <span
-              className="text-white font-semibold text-[15px] tracking-wide"
+              className="text-white font-semibold text-[15px] tracking-tight"
               style={{ fontFamily: "'Lato', sans-serif" }}
             >
               Awesome <span className="text-[#e8ff47]">Dotfiles</span>
@@ -45,7 +45,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
             {navLinks.map(({ label, to }) => (
               <NavLink key={label} to={to} end className={({ isActive }) => clsx(
-                'px-4 py-1.5 text-sm font-semibold tracking-wide rounded-full',
+                'px-4 py-1.5 text-sm font-medium tracking-tight rounded-full',
                 isActive ? 'bg-[#e8ff47] text-black' : 'text-white/40 hover:text-white hover:bg-white/5'
               )}>
                 {label}
@@ -71,7 +71,7 @@ export default function Navbar() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Escape' && setSearchOpen(false)}
                     placeholder="Search rices..."
-                    className="w-full px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white placeholder:text-white/20 outline-none focus:border-[#e8ff47]/40 font-mono"
+                    className="w-full px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white placeholder:text-white/20 outline-none focus:border-[#e8ff47]/40 font-medium"
                   />
                 </motion.div>
               )}
@@ -86,7 +86,7 @@ export default function Navbar() {
 
             <Link
               to="/submit"
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#e8ff47] hover:bg-[#d4eb30] text-black font-bold tracking-wide text-sm"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#e8ff47] hover:bg-[#d4eb30] text-black font-medium text-sm"
             >
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-2.5 h-2.5" />
               Share your build

@@ -101,7 +101,7 @@ export default function RiceDetail() {
 
   if (notFound) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center px-6">
-      <p className="text-6xl font-bold text-white/5">404</p>
+      <p className="text-6xl font-medium text-white/5">404</p>
       <p className="text-sm text-white/30">This setup doesn't exist or was removed.</p>
       <button onClick={() => navigate('/')} className="text-xs text-[#e8ff47] hover:underline">← Back to gallery</button>
     </div>
@@ -149,11 +149,11 @@ export default function RiceDetail() {
         className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-8"
       >
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-snug">
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-white leading-snug">
             {rice.title}
           </h1>
           <div className="flex items-center gap-3 mt-2.5">
-            <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-[#e8ff47] uppercase">
+            <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-medium text-[#e8ff47] uppercase">
               {rice.author?.[0] ?? '?'}
             </div>
             <span className="text-sm text-white/40">{rice.author ?? 'anonymous'}</span>
@@ -168,11 +168,9 @@ export default function RiceDetail() {
             <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
             {rice.views ?? 0}
           </div>
-          {/* Aquí se quitó el botón pequeño que solo decía "Dotfiles" */}
         </div>
       </motion.div>
 
-      {/* Vote bar */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -183,7 +181,7 @@ export default function RiceDetail() {
           onClick={() => handleVote('up')}
           disabled={voting}
           className={clsx(
-            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all',
+            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
             vote === 'up'
               ? 'bg-[#e8ff47] text-black'
               : 'bg-white/5 border border-white/10 text-white/40 hover:text-white hover:border-white/20'
@@ -197,7 +195,7 @@ export default function RiceDetail() {
           onClick={() => handleVote('down')}
           disabled={voting}
           className={clsx(
-            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all',
+            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
             vote === 'down'
               ? 'bg-red-500/20 border border-red-500/40 text-red-400'
               : 'bg-white/5 border border-white/10 text-white/40 hover:text-white hover:border-white/20'
@@ -234,14 +232,14 @@ export default function RiceDetail() {
         <div className="flex flex-col gap-8">
           {rice.description && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-white/20 mb-3">About</p>
+              <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">About</p>
               <p className="text-sm text-white/50 leading-relaxed">{rice.description}</p>
             </motion.div>
           )}
 
           {rice.palette?.length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-white/20 mb-3">Palette</p>
+              <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">Palette</p>
               <div className="flex flex-wrap gap-2">
                 {rice.palette.map((color, i) => (
                   <div key={i} className="group flex flex-col items-center gap-1.5">
@@ -259,7 +257,7 @@ export default function RiceDetail() {
           {rice.notes && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-white/20">Notes</p>
+                <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Notes</p>
                 <CopyButton text={rice.notes} />
               </div>
               <div className="rounded-xl bg-black border border-white/8 p-4 overflow-x-auto">
@@ -277,7 +275,7 @@ export default function RiceDetail() {
           transition={{ delay: 0.2 }}
           className="flex flex-col gap-4"
         >
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-white/20">Specs</p>
+          <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Specs</p>
           <div className="rounded-xl border border-white/8 overflow-hidden">
             {[
               { label: 'WM / DE', value: rice.wm },
@@ -297,7 +295,7 @@ export default function RiceDetail() {
               href={rice.githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-xs font-semibold transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-xs font-medium transition-colors"
             >
               <FontAwesomeIcon icon={faGithub} className="w-3.5 h-3.5" />
               View dotfiles

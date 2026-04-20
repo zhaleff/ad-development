@@ -7,19 +7,12 @@ import { db } from '../lib/firebase'
 import Typewriter from 'typewriter-effect'
 import RiceGrid from '../components/RiceGrid'
 export default function Home() {
-  const [total, setTotal] = useState(null)
-  useEffect(() => {
-    getCountFromServer(collection(db, 'rices')).then((s) => setTotal(s.data().count)).catch(() => { })
-  }, [])
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <section className="relative pt-40 pb-24 flex flex-col md:flex-row items-center justify-between gap-12">
         <div className="flex-1 z-10">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="px-2 py-0.5 rounded border border-[#e8ff47]/30 bg-[#e8ff47]/5 text-[10px] font-bold tracking-widest uppercase text-[#e8ff47]">v2.0 Beta</span>
-            {total !== null && (<span className="text-[11px] font-mono text-white/30 tracking-tight">// {total.toLocaleString()} CONFIGS_INDEXED</span>)}
-          </div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter text-white leading-[0.95]">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold tracking-light text-white ">
             Archive your <br />
             <span className="text-[#e8ff47] flex gap-3">
               <Typewriter options={{ strings: ['desktop', 'linux', 'workflow', 'dotfiles'], autoStart: true, loop: true, wrapperClassName: "text-[#e8ff47]", cursorClassName: "text-white/20" }} />
@@ -27,11 +20,11 @@ export default function Home() {
           </h1>
           <p className="mt-8 text-base md:text-lg text-white/40 max-w-lg leading-relaxed font-medium">The central hub for meticulously crafted desktop environments. Discover configurations, color palettes, and scripts.</p>
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link to="/submit" className="flex items-center gap-2 px-7 py-3 rounded-full bg-[#e8ff47] hover:bg-white text-black text-sm font-bold transition-all">
+            <Link to="/submit" className="flex items-center gap-2 px-7 py-3 rounded-full bg-[#e8ff47] hover:bg-white text-black text-sm font-medium">
               Submit rice
               <FontAwesomeIcon icon={faArrowRight} className="w-3.5 h-3.5" />
             </Link>
-            <a href="https://reddit.com/r/unixporn" target="_blank" rel="noreferrer" className="flex items-center px-7 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 text-sm font-semibold transition-all">r/unixporn</a>
+            <a href="https://reddit.com/r/unixporn" target="_blank" rel="noreferrer" className="flex items-center px-7 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 text-sm font-medium">r/unixporn</a>
           </div>
         </div>
       </section>

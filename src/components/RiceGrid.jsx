@@ -29,7 +29,7 @@ function Dropdown({ label, options, value, onChange }) {
       <button
         onClick={() => setOpen((v) => !v)}
         className={clsx(
-          'flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-medium transition-all',
+          'flex items-center gap-2 px-4 py-3 rounded-full text-xs font-medium transition-all',
           value && value !== 'All'
             ? 'bg-[#e8ff47] border-[#e8ff47] text-black'
             : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:border-white/20'
@@ -107,7 +107,7 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
 
   return (
     <div>
-      <div className="relative z-40 py-3 border-y border-white/5 bg-[#050505] mb-8">
+      <div className="relative z-40 py-4 border-y border-white/5 bg-[#050505] mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-full p-1">
             {SORT_OPTIONS.map(({ label, value, icon }) => (
@@ -115,7 +115,7 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
                 key={value}
                 onClick={() => setSort(value)}
                 className={clsx(
-                  'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all',
+                  'flex items-center gap-2 px-6 py-2 rounded-full text-xs font-medium transition-all',
                   sort === value ? 'bg-white/10 text-[#e8ff47]' : 'text-white/30 hover:text-white'
                 )}
               >
@@ -130,7 +130,7 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
             {hasFilters && (
               <button
                 onClick={() => { setWm('All'); setDistro('All') }}
-                className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all"
               >
                 <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
               </button>
