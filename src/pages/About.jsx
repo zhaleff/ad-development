@@ -32,9 +32,6 @@ export default function About() {
               />
             </div>
           </div>
-          <p className="text-base text-white/35 max-w-sm leading-relaxed lg:mb-3">
-            There was no good place to discover Linux desktop setups. Reddit moves too fast, GitHub shows you nothing. We built something in between — a gallery that actually works.
-          </p>
         </div>
       </motion.div>
       <div className="border-t border-white/5 mb-28" />
@@ -75,13 +72,8 @@ export default function About() {
           <p className="text-xl font-bold text-white mb-1">More sections coming soon</p>
           <p className="text-sm text-white/25 italic">The project is currently under active development.</p>
         </div>
-        <Link
-          to="/submit"
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-sm font-semibold transition-colors flex-shrink-0"
-        >
-          Submit your rice
-          <FontAwesomeIcon icon={faArrowRight} className="w-3.5 h-3.5" />
-        </Link>
+
+
       </motion.div>
     </div>
   )
