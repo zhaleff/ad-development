@@ -8,7 +8,7 @@ import clsx from 'clsx'
 
 const navLinks = [
   { label: 'Gallery', to: '/' },
-  { label: 'Recents', to: '/recent' },
+  { label: 'About', to: '/about' },
 ]
 
 export default function Navbar() {
