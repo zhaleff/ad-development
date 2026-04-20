@@ -9,7 +9,7 @@ import { faXmark, faPlus, faArrowRight, faScaleBalanced, faCircleNotch, faCloudA
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../lib/firebase'
-import { uploadImage } from '../lib/cloudinary'
+import { uploadImage } from '../lib/uploadcare' 
 import clsx from 'clsx'
 
 const LICENSE_OPTIONS = ['MIT', 'GPL-3.0', 'Apache-2.0', 'Unlicense', 'BSD-3-Clause', 'MPL-2.0', 'None']
@@ -109,30 +109,39 @@ export default function Submit() {
     if (!imageFile) { toast.error('Please upload a screenshot.'); return }
     if (!wm || !distro) { toast.error('Please select WM and distro.'); return }
     setSubmitting(true)
-    const toastId = toast.loading('Uploading...')
+    const toastId = toast.loading('Uploading to CDN...')
+    
     try {
       const imageUrl = await uploadImage(imageFile)
-      toast.loading('Saving...', { id: toastId })
+      
+      toast.loading('Saving to database...', { id: toastId })
+      
       const docRef = await addDoc(collection(db, 'rices'), {
         ...data,
-        wm, distro, palette, license, imageUrl,
+        wm, 
+        distro, 
+        palette, 
+        license, 
+        imageUrl, 
         status: 'pending',
         author: data.author || 'anonymous',
-        views: 0, stars: 0,
+        views: 0, 
+        stars: 0,
         createdAt: serverTimestamp(),
       })
-      toast.success('Submitted!', { id: toastId })
+
+      toast.success('Submitted successfully!', { id: toastId })
       navigate(`/rice/${docRef.id}`)
     } catch (err) {
       console.error(err)
-      toast.error('Something went wrong.', { id: toastId })
+      toast.error('Upload failed. Check your config.', { id: toastId })
     } finally {
       setSubmitting(false)
     }
   }
+
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-28 pb-24">
-
       <div className="mb-12">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-[#e8ff47] mb-3">New submission</p>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
@@ -142,8 +151,8 @@ export default function Submit() {
           Screenshot, config details, color palette — all in one place.
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
 
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div>
           <Label required>Screenshot</Label>
           <div
@@ -291,7 +300,6 @@ export default function Submit() {
             Your submission will be reviewed before appearing publicly.
           </p>
         </div>
-
       </form>
     </div>
   )
