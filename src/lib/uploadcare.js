@@ -1,6 +1,5 @@
 const PUBLIC_KEY = import.meta.env.VITE_UPLOADCARE_PUBLIC_KEY;
 const CDN_BASE = import.meta.env.VITE_UPLOADCARE_CDN_BASE;
-// VITE_UPLOADCARE_CDN_BASE=https://1590ssoe8k.ucarecd.net  ← ponlo en tu .env
 
 function buildUrl(uuid, transformations = '-/preview/1000x1000/-/quality/smart/-/format/auto/') {
   const base = CDN_BASE
@@ -33,7 +32,6 @@ export async function uploadImage(file) {
   return buildUrl(uuid);
 }
 
-// Extrae el UUID de cualquier URL de uploadcare (ucarecdn.com o *.ucarecd.net)
 function extractUuid(url) {
   const match = url.match(
     /(?:ucarecdn\.com|ucarecd\.net)\/([0-9a-f-]{36})/i
@@ -44,13 +42,11 @@ function extractUuid(url) {
 export function getOptimizedUrl(url, transformations) {
   if (!url) return '';
 
-  // Cloudinary: devolver tal cual
   if (url.includes('cloudinary.com')) return url;
 
-  // Es una URL de uploadcare → extraer UUID y reconstruir con CDN correcto
   if (url.includes('ucarecdn.com') || url.includes('ucarecd.net')) {
     const uuid = extractUuid(url);
-    if (!uuid) return url; // no se pudo parsear, devolver original
+    if (!uuid) return url;
     return buildUrl(uuid, transformations);
   }
 
