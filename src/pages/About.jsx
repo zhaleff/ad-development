@@ -57,7 +57,7 @@ export default function About() {
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             {['Community driven', 'Manually reviewed', 'No accounts needed', 'Always free'].map((tag) => (
-              <span key={tag} className="px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/8 text-xs text-white/40">
+              <span key={tag} className="px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/8 text-xs text-white/40">
                 {tag}
               </span>
             ))}
