@@ -92,7 +92,7 @@ src/
 │   └── cloudinary.js Image upload helper
 └── pages/
     ├── Home.jsx       Landing page with hero and gallery
-    ├── Recent.jsx     Full community collection
+    ├── About.jsx      About for this project
     ├── Submit.jsx     Submission form
     ├── RiceDetail.jsx Individual rice page with votes
     ├── Admin.jsx      Moderation panel (protected)
@@ -103,7 +103,7 @@ src/
 
 # How Submissions Work
 
-When a user submits a rice, the form collects a title, author handle, description, window manager, distro, color palette, dotfiles URL, and a screenshot. The image is uploaded to Cloudinary first, and the returned URL is included when the document is saved to Firestore with `status: 'pending'`.
+When a user submits a rice, the form collects a license, author handle, description, window manager, distro, color palette, dotfiles URL, and a screenshot. The image is uploaded to Cloudinary first, and the returned URL is included when the document is saved to Firestore with `status: 'pending'`.
 
 Pending submissions do not appear in the public gallery. The admin reviews them at `/admin`, where each card shows the full image, metadata, and approve or reject buttons. Approving sets `status` to `approved`. Rejecting deletes the document entirely.
 
