@@ -274,17 +274,6 @@ export default function Submit() {
             </div>
           )}
         </div>
-
-        <div>
-          <Label>Notes / config snippets</Label>
-          <Textarea
-            rows={4}
-            placeholder="Shell, font, terminal, compositor settings..."
-            className="font-mono text-xs"
-            {...register('notes')}
-          />
-        </div>
-
         <div className="pt-1">
           <button
             type="submit"
