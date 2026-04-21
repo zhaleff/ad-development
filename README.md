@@ -55,9 +55,9 @@ The admin panel at `/admin` is protected by Firebase Authentication using email 
 
 The project is deployed on Firebase Hosting, which provides global CDN distribution and automatic SSL. Deployment is handled manually — there is no CI/CD pipeline. When a new version is ready, it gets built and pushed.
 
-## Cloudinary
+## Uploadcare
 
-User-uploaded screenshots are stored on Cloudinary, not Firebase Storage. Cloudinary was chosen because it offers a generous free tier without requiring a payment method. Uploads use an unsigned upload preset, meaning images can be sent directly from the browser without exposing API secrets. The returned `secure_url` is what gets saved to Firestore.
+User-uploaded screenshots are stored on Uploadcare, not Firebase Storage. Cloudinary was chosen because it offers a generous free tier without requiring a payment method. Uploads use an unsigned upload preset, meaning images can be sent directly from the browser without exposing API secrets. The returned `secure_url` is what gets saved to Firestore.
 
 ## Framer Motion
 
@@ -71,7 +71,7 @@ Component transitions and entrance animations are handled by Framer Motion. Most
 - `react-type-animation` / `typewriter-effect` — animated text on the hero sections
 - `date-fns` — date formatting and relative time (e.g., "3 days ago")
 - `clsx` — conditional className utility
-- `lucide-react` / Font Awesome — icons throughout the interface
+- `Font Awesome` — icons throughout the interface
 
 &nbsp;
 
@@ -89,7 +89,7 @@ src/
 │   └── AuthContext.jsx  Firebase auth state provider
 ├── lib/
 │   ├── firebase.js   Firestore + Auth initialization
-│   └── cloudinary.js Image upload helper
+│   └── uploadcare.js Image upload helper
 └── pages/
     ├── Home.jsx       Landing page with hero and gallery
     ├── About.jsx      About for this project
