@@ -9,7 +9,7 @@ import { faXmark, faPlus, faArrowRight, faScaleBalanced, faCircleNotch, faCloudA
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../lib/firebase'
-import { uploadImage } from '../lib/uploadcare' 
+import { uploadImage } from '../lib/uploadcare'
 import clsx from 'clsx'
 
 const LICENSE_OPTIONS = ['MIT', 'GPL-3.0', 'Apache-2.0', 'Unlicense', 'BSD-3-Clause', 'MPL-2.0', 'None']
@@ -110,31 +110,30 @@ export default function Submit() {
     if (!wm || !distro) { toast.error('Please select WM and distro.'); return }
     setSubmitting(true)
     const toastId = toast.loading('Uploading to CDN...')
-    
+
     try {
       const imageUrl = await uploadImage(imageFile)
-      
       toast.loading('Saving to database...', { id: toastId })
-      
-      const docRef = await addDoc(collection(db, 'rices'), {
+
+      await addDoc(collection(db, 'rices'), {
         ...data,
-        wm, 
-        distro, 
-        palette, 
-        license, 
-        imageUrl, 
+        wm,
+        distro,
+        palette,
+        license,
+        imageUrl,
         status: 'pending',
         author: data.author || 'anonymous',
-        views: 0, 
+        views: 0,
         stars: 0,
         createdAt: serverTimestamp(),
       })
 
       toast.success('Submitted successfully!', { id: toastId })
-      navigate(`/rice/${docRef.id}`)
+      navigate('/')
     } catch (err) {
       console.error(err)
-      toast.error('Upload failed. Check your config.', { id: toastId })
+      toast.error('Upload failed.', { id: toastId })
     } finally {
       setSubmitting(false)
     }
@@ -274,6 +273,7 @@ export default function Submit() {
             </div>
           )}
         </div>
+
         <div className="pt-1">
           <button
             type="submit"
