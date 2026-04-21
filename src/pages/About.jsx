@@ -64,6 +64,42 @@ export default function About() {
           </div>
         </div>
       </motion.div>
+      <div className="border-t border-white/5 mb-28" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-16 mb-28"
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/20 mb-1">02</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">How it's built</h2>
+        </div>
+        <div className="flex flex-col gap-8">
+          <p className="text-sm text-white/35 leading-relaxed">
+            The entire stack is serverless. No backend to maintain, no servers to scale. Submissions go straight to Firestore, images land on Cloudinary's CDN, and the whole thing is hosted on Firebase. Fast, cheap, and reliable enough for what this needs to be.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { layer: 'Frontend', tech: 'React + Vite', detail: 'Fast builds, lazy loaded routes' },
+              { layer: 'Database', tech: 'Firebase Firestore', detail: 'Real-time NoSQL, composite indexes' },
+              { layer: 'Images', tech: 'UploadCare', detail: 'CDN delivery, unsigned uploads' },
+              { layer: 'Styling', tech: 'Tailwind CSS v4', detail: 'CSS variables, @theme directive' },
+              { layer: 'Animations', tech: 'Framer Motion', detail: 'Entrance animations, transitions' },
+              { layer: 'Hosting', tech: 'Firebase Hosting', detail: 'Global CDN, SSL included' },
+            ].map(({ layer, tech, detail }) => (
+              <div key={layer} className="flex flex-col gap-1 p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors group">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-white/20 uppercase tracking-wider">{layer}</span>
+                </div>
+                <p className="text-sm font-semibold text-white/70 group-hover:text-white transition-colors">{tech}</p>
+                <p className="text-[11px] text-white/25">{detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
 
       <div className="border-t border-white/5 mb-28" />
 
