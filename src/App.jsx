@@ -11,6 +11,7 @@ const About = lazy(() => import('./pages/About'))
 const Submit = lazy(() => import('./pages/Submit'))
 const RiceDetail = lazy(() => import('./pages/RiceDetail'))
 const Admin = lazy(() => import('./pages/Admin'))
+const Themes = lazy(() => import('./pages/Themes'))
 const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 
 function PageLoader() {
@@ -33,6 +34,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/themes" element={<Themes />} />
                 <Route path="/submit" element={<Submit />} />
                 <Route path="/rice/:id" element={<RiceDetail />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
