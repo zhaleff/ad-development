@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark, faPlus, faArrowRight, faScaleBalanced, faCircleNotch, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faXmark, faPalette, faArrowRight, faScaleBalanced, faCircleNotch, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../lib/firebase'
@@ -233,45 +233,13 @@ export default function Submit() {
             <FontAwesomeIcon icon={faGithub} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
             <Field className="pl-11" placeholder="https://github.com/you/dotfiles" {...register('githubUrl')} />
           </div>
-        </div>
-
+        </div> { /* I'm not really sure if it's a good idea to implement this with more than 30 dotfiles already uploaded. */}
         <div>
-          <Label>Color palette</Label>
-          <div className="flex gap-2 mb-3">
-            <div className="relative flex-1">
-              <div
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded border border-white/15"
-                style={{ backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(colorInput) ? colorInput : 'transparent' }}
-              />
-              <Field
-                className="pl-11 font-mono text-xs"
-                placeholder="#1e1e2e"
-                value={colorInput}
-                onChange={(e) => setColorInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={addColor}
-              className="px-4 rounded-xl bg-white/[0.04] border border-white/8 text-white/30 hover:text-white hover:border-white/20 text-xs transition-all"
-            >
-              <FontAwesomeIcon icon={faPlus} />
-            </button>
+          <Label>Color Palete </Label>
+          <div className="relative">
+            <FontAwesomeIcon icon={faPalette} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
+            <Field className="pl-11" placeholder="Tokyo Night" {...register('palette')} />
           </div>
-          {palette.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {palette.map((color) => (
-                <div key={color} className="flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/8">
-                  <div className="w-3.5 h-3.5 rounded-md border border-white/10 flex-shrink-0" style={{ backgroundColor: color }} />
-                  <span className="text-[11px] font-mono text-white/35">{color}</span>
-                  <button type="button" onClick={() => removeColor(color)} className="text-white/15 hover:text-white/60 ml-0.5 transition-colors">
-                    <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="pt-1">

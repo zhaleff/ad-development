@@ -2,19 +2,19 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClock, faThumbsUp, faFire, faShuffle, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faClock, faThumbsUp, faShuffle, faChevronDown, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import RiceCard from './RiceCard'
 import clsx from 'clsx'
-
 const WM_OPTIONS = ['All', 'Hyprland', 'i3', 'MangoWM', 'Sway', 'bspwm', 'dwm', 'Qtile', 'AwesomeWM', 'XFCE', 'MiracleWM', 'KDE', 'GNOME']
 const DISTRO_OPTIONS = ['All', 'Arch', 'NixOS', 'Debian', 'Fedora', 'Ubuntu', 'Void', 'Gentoo', 'EndeavourOS', 'openSUSE']
 
 const SORT_OPTIONS = [
   { label: 'Recent', value: 'recent', icon: faClock, field: 'createdAt' },
   { label: 'Most liked', value: 'liked', icon: faThumbsUp, field: 'likes' },
-  { label: 'Random', value: 'random', icon: faShuffle, field: 'createdAt' },]
+  { label: 'Random', value: 'random', icon: faShuffle, field: 'createdAt' },
+]
 
 function Dropdown({ label, options, value, onChange }) {
   const [open, setOpen] = useState(false)
@@ -24,18 +24,19 @@ function Dropdown({ label, options, value, onChange }) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+  const active = value && value !== 'All'
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
         className={clsx(
-          'flex items-center gap-2 px-4 py-3 rounded-full text-xs font-medium transition-all',
-          value && value !== 'All'
+          'flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all border',
+          active
             ? 'bg-[#e8ff47] border-[#e8ff47] text-black'
-            : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:border-white/20'
+            : 'bg-white/[0.04] border-white/8 text-white/40 hover:text-white hover:border-white/15'
         )}
       >
-        {value !== 'All' ? value : label}
+        {active ? value : label}
         <FontAwesomeIcon icon={faChevronDown} className={clsx('w-2.5 transition-transform duration-200', open && 'rotate-180')} />
       </button>
       <AnimatePresence>
@@ -53,7 +54,7 @@ function Dropdown({ label, options, value, onChange }) {
                   <button
                     onClick={() => { onChange(opt); setOpen(false) }}
                     className={clsx(
-                      'w-full text-left px-3 py-2 rounded-full text-xs transition-colors',
+                      'w-full text-left px-3 py-2 rounded-lg text-xs transition-colors',
                       value === opt ? 'bg-[#e8ff47]/10 text-[#e8ff47]' : 'text-white/40 hover:text-white hover:bg-white/5'
                     )}
                   >
@@ -71,11 +72,12 @@ function Dropdown({ label, options, value, onChange }) {
 
 export default function RiceGrid({ defaultSort = 'recent' }) {
   const [rices, setRices] = useState([])
+  const [allRices, setAllRices] = useState([])
   const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState(defaultSort)
   const [wm, setWm] = useState('All')
   const [distro, setDistro] = useState('All')
-
+  const [search, setSearch] = useState('')
   useEffect(() => {
     async function fetchRices() {
       setLoading(true)
@@ -91,9 +93,7 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
         const snap = await getDocs(q)
         let docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
         if (sort === 'random') docs = docs.sort(() => Math.random() - 0.5)
-        if (wm !== 'All') docs = docs.filter((r) => r.wm === wm)
-        if (distro !== 'All') docs = docs.filter((r) => r.distro === distro)
-        setRices(docs)
+        setAllRices(docs)
       } catch (err) {
         console.error(err)
       } finally {
@@ -101,46 +101,106 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
       }
     }
     fetchRices()
-  }, [sort, wm, distro])
-
-  const hasFilters = wm !== 'All' || distro !== 'All'
-
+  }, [sort])
+  useEffect(() => {
+    let filtered = [...allRices]
+    if (wm !== 'All') filtered = filtered.filter((r) => r.wm === wm)
+    if (distro !== 'All') filtered = filtered.filter((r) => r.distro === distro)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      filtered = filtered.filter(
+        (r) =>
+          r.title?.toLowerCase().includes(q) ||
+          r.author?.toLowerCase().includes(q) ||
+          r.description?.toLowerCase().includes(q) ||
+          r.wm?.toLowerCase().includes(q) ||
+          r.distro?.toLowerCase().includes(q)
+      )
+    }
+    setRices(filtered)
+  }, [allRices, wm, distro, search])
+  const hasFilters = wm !== 'All' || distro !== 'All' || search.trim() !== ''
+  const clearAll = () => { setWm('All'); setDistro('All'); setSearch('') }
   return (
     <div>
       <div className="relative z-40 py-4 border-y border-white/5 bg-[#050505] mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex items-center gap-1 bg-white/5 border border-white/5 rounded-full p-1">
-            {SORT_OPTIONS.map(({ label, value, icon }) => (
-              <button
-                key={value}
-                onClick={() => setSort(value)}
-                className={clsx(
-                  'flex items-center gap-2 px-6 py-2 rounded-full text-xs font-medium transition-all',
-                  sort === value ? 'bg-white/10 text-[#e8ff47]' : 'text-white/30 hover:text-white'
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/8 rounded-xl p-1">
+              {SORT_OPTIONS.map(({ label, value, icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setSort(value)}
+                  className={clsx(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    sort === value
+                      ? 'bg-white/10 text-[#e8ff47]'
+                      : 'text-white/30 hover:text-white/60'
+                  )}
+                >
+                  <FontAwesomeIcon icon={icon} className="w-3 h-3" />
+                  <span className="hidden sm:inline">{label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <Dropdown label="WM / DE" options={WM_OPTIONS} value={wm} onChange={setWm} />
+              <Dropdown label="Distro" options={DISTRO_OPTIONS} value={distro} onChange={setDistro} />
+              <AnimatePresence>
+                {hasFilters && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    onClick={clearAll}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+                  </motion.button>
                 )}
-              >
-                <FontAwesomeIcon icon={icon} className="w-3 h-3" />
-                {label}
-              </button>
-            ))}
+              </AnimatePresence>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Dropdown label="WM / DE" options={WM_OPTIONS} value={wm} onChange={setWm} />
-            <Dropdown label="Distro" options={DISTRO_OPTIONS} value={distro} onChange={setDistro} />
-            {hasFilters && (
-              <button
-                onClick={() => { setWm('All'); setDistro('All') }}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all"
-              >
-                <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
-              </button>
-            )}
+          <div className="relative">
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20 pointer-events-none"
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by title, author, WM, distro…"
+              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/8 rounded-xl text-xs text-white/70 placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
+            />
+            <AnimatePresence>
+              {search && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
-
+      {!loading && hasFilters && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-xs text-white/20 mb-5 -mt-3"
+        >
+          {rices.length} result{rices.length !== 1 ? 's' : ''}
+        </motion.p>
+      )}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="aspect-video rounded-xl bg-white/[0.03] animate-pulse border border-white/5" />
           ))}
@@ -157,11 +217,25 @@ export default function RiceGrid({ defaultSort = 'recent' }) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {rices.map((rice, i) => (
-            <RiceCard key={rice.id} rice={rice} index={i} />
-          ))}
-        </div>
+        <motion.div
+          layout
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          <AnimatePresence mode="popLayout">
+            {rices.map((rice, i) => (
+              <motion.div
+                key={rice.id}
+                layout
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.2, delay: i < 6 ? i * 0.04 : 0 }}
+              >
+                <RiceCard rice={rice} index={i} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   )

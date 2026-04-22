@@ -106,13 +106,11 @@ export default function RiceDetail() {
       <button onClick={() => navigate('/')} className="text-xs text-[#e8ff47] hover:underline">← Back to gallery</button>
     </div>
   )
-
   const createdDate = rice.createdAt?.toDate?.() ?? (rice.createdAt ? new Date(rice.createdAt) : null)
   const likes = rice.likes ?? 0
   const dislikes = rice.dislikes ?? 0
   const total = likes + dislikes
   const likePercent = total > 0 ? Math.round((likes / total) * 100) : null
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -120,7 +118,6 @@ export default function RiceDetail() {
       transition={{ duration: 0.4 }}
       className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-28"
     >
-
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -130,7 +127,6 @@ export default function RiceDetail() {
           Back
         </button>
       </div>
-
       {rice.imageUrl && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -141,7 +137,6 @@ export default function RiceDetail() {
           <img src={rice.imageUrl} alt={rice.title} className="w-full object-cover max-h-[560px]" />
         </motion.div>
       )}
-
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -162,7 +157,6 @@ export default function RiceDetail() {
             )}
           </div>
         </div>
-
         <div className="flex items-center gap-3 flex-shrink-0 pt-1">
           <div className="flex items-center gap-1.5 text-xs text-white/20">
             <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
@@ -170,62 +164,69 @@ export default function RiceDetail() {
           </div>
         </div>
       </motion.div>
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15 }}
-        className="flex items-center gap-4 mb-8 p-4 rounded-2xl bg-white/[0.03] border border-white/5"
+        className="flex items-center gap-3 mb-8"
       >
         <button
           onClick={() => handleVote('up')}
           disabled={voting}
           className={clsx(
-            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+            'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
             vote === 'up'
-              ? 'bg-[#e8ff47] text-black'
-              : 'bg-white/5 border border-white/10 text-white/40 hover:text-white hover:border-white/20'
+              ? 'bg-[#e8ff47] text-black shadow-[0_0_20px_rgba(232,255,71,0.25)]'
+              : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/70 hover:border-white/15 hover:bg-white/[0.07]'
           )}
         >
-          <FontAwesomeIcon icon={faThumbsUp} className="w-4 h-4" />
-          {likes}
+          <FontAwesomeIcon
+            icon={faThumbsUp}
+            className={clsx(
+              'w-3.5 h-3.5 transition-transform duration-150',
+              vote === 'up' ? 'scale-110' : 'group-hover:scale-110'
+            )}
+          />
+          <span className="tabular-nums">{likes}</span>
         </button>
-
         <button
           onClick={() => handleVote('down')}
           disabled={voting}
           className={clsx(
-            'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+            'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
             vote === 'down'
-              ? 'bg-red-500/20 border border-red-500/40 text-red-400'
-              : 'bg-white/5 border border-white/10 text-white/40 hover:text-white hover:border-white/20'
+              ? 'bg-white/[0.06] border border-red-500/30 text-red-400'
+              : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/50 hover:border-white/15 hover:bg-white/[0.07]'
           )}
         >
-          <FontAwesomeIcon icon={faThumbsDown} className="w-4 h-4" />
-          {dislikes}
+          <FontAwesomeIcon
+            icon={faThumbsDown}
+            className={clsx(
+              'w-3.5 h-3.5 transition-transform duration-150',
+              vote === 'down' ? 'scale-110' : 'group-hover:scale-110'
+            )}
+          />
+          <span className="tabular-nums">{dislikes}</span>
         </button>
-
         {likePercent !== null && (
-          <div className="flex-1 flex flex-col gap-1.5">
-            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${likePercent}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="h-full bg-[#e8ff47] rounded-full"
-              />
+          <div className="flex items-center gap-3 ml-1">
+            <div className="w-px h-5 bg-white/8" />
+            <div className="flex flex-col gap-1">
+              <div className="w-28 h-0.5 rounded-full bg-white/[0.06] overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${likePercent}%` }}
+                  transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+                  className="h-full bg-[#e8ff47] rounded-full"
+                />
+              </div>
+              <span className="text-[10px] text-white/20 tabular-nums">
+                {likePercent}% · {total} votos
+              </span>
             </div>
-            <span className="text-[10px] text-white/20">{likePercent}% positive · {total} votes</span>
           </div>
         )}
-
-        {vote && (
-          <span className="text-[10px] text-white/20 ml-auto">
-            {vote === 'up' ? 'You liked this' : 'You disliked this'}
-          </span>
-        )}
       </motion.div>
-
       <div className="border-t border-white/5 mb-10" />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-12">
@@ -234,23 +235,6 @@ export default function RiceDetail() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
               <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">About</p>
               <p className="text-sm text-white/50 leading-relaxed">{rice.description}</p>
-            </motion.div>
-          )}
-
-          {rice.palette?.length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">Palette</p>
-              <div className="flex flex-wrap gap-2">
-                {rice.palette.map((color, i) => (
-                  <div key={i} className="group flex flex-col items-center gap-1.5">
-                    <div
-                      className="w-9 h-9 rounded-lg border border-white/10 transition-transform group-hover:scale-110"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-[9px] font-mono text-white/20 group-hover:text-white/50 transition-colors">{color}</span>
-                  </div>
-                ))}
-              </div>
             </motion.div>
           )}
 
@@ -279,6 +263,7 @@ export default function RiceDetail() {
           <div className="rounded-xl border border-white/8 overflow-hidden">
             {[
               { label: 'WM / DE', value: rice.wm },
+              { label: 'Palette', value: rice.palette?.length > 0 ? `${rice.palette.length} colors` : 'None' },
               { label: 'Distro', value: rice.distro },
               { label: 'License', value: rice.license },
               { label: 'Date', value: createdDate ? format(createdDate, 'MMM d, yyyy') : null },

@@ -27,13 +27,14 @@ export default function Footer() {
               <span className="text-lg font-bold tracking-wide  text-white  leading-none">
                 Awesome<span className="text-[#e8ff47]">Dotfiles</span>
               </span>
-              <span className="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase mt-1">the.index.v2</span>
             </div>
           </Link>
 
           <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs font-bold uppercase tracking-widest text-white/30">
             <li><Link to="/" className="hover:text-[#e8ff47] transition-colors">Gallery</Link></li>
-            <li><Link to="/about" className="hover:text-[#e8ff47] transition-colors">About</Link></li>
+            <li><Link to="/submit" className=" hover:text-[#e8ff47]">Guide</Link></li>
+            <li><Link to="/submit" className=" hover:text-[#e8ff47]">Themes</Link></li>
+            <li><Link to="/about" className=" transition-colors">About</Link></li>
             <li><Link to="/submit" className="text-[#e8ff47]/60 hover:text-[#e8ff47]">Submit rice</Link></li>
           </ul>
 
@@ -53,17 +54,10 @@ export default function Footer() {
               <FontAwesomeIcon icon={faCode} />
             </a>
             <span className="text-[10px] font-mono text-white/10 ml-2 tracking-tighter">
-              © {year} ARCHIVE_ZHALEFF. ALL_RIGHTS_RESERVED.
+              Copyright (c) {year} zhaleff. All Rights Reserved..
             </span>
           </div>
-
-          <div className="flex items-center gap-3 px-4 py-2 rounded-full border border-white/5 bg-white/[0.02]">
-            <span className="text-[9px] font-black uppercase text-white/20 tracking-tighter">Made with</span>
-            <FontAwesomeIcon icon={faHeart} className="text-[#e8ff47] text-[10px] animate-pulse" />
-            <span className="text-[9px] font-black uppercase text-white/20 tracking-tighter">for the unix community</span>
-          </div>
         </div>
-
       </div>
     </footer>
   )

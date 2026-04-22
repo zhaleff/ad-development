@@ -94,6 +94,8 @@ src/
     ├── Home.jsx       Landing page with hero and gallery
     ├── About.jsx      About for this project
     ├── Submit.jsx     Submission form
+    ├── Submit.jsx     Theme section 
+    ├── Submit.jsx     Guide to creating your own dotfiles (area still under development) 
     ├── RiceDetail.jsx Individual rice page with votes
     ├── Admin.jsx      Moderation panel (protected)
     └── AdminLogin.jsx Authentication page
