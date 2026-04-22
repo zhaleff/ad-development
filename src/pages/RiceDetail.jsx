@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faEye, faCopy, faCheck, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faEye, faCopy, faCheck, faThumbsUp, faThumbsDown, faShareAlt } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore'
 import { db } from '../lib/firebase'
@@ -22,7 +22,7 @@ function CopyButton({ text }) {
       onClick={handle}
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white transition-colors"
     >
-      <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={clsx('w-3 h-3', copied && 'text-green-400')} />
+      <FontAwesomeIcon icon={copied ? faCheck : faCopy} className={clsx('w-3 h-3', copied && 'text-[#e8ff47]')} />
       {copied ? 'Copied' : 'Copy'}
     </button>
   )
@@ -90,6 +90,27 @@ export default function RiceDetail() {
       toast.error('Failed to vote.')
     } finally {
       setVoting(false)
+    }
+  }
+
+  async function handleShare() {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: rice.title,
+          text: `Check out ${rice.title} by ${rice.author || 'anonymous'}`,
+          url: url,
+        })
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(url)
+          toast.success('Link copied')
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(url)
+      toast.success('Link copied')
     }
   }
 
@@ -162,6 +183,13 @@ export default function RiceDetail() {
             <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
             {rice.views ?? 0}
           </div>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white transition-colors"
+          >
+            <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3" />
+            Share
+          </button>
         </div>
       </motion.div>
       <motion.div
