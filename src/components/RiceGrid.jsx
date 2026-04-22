@@ -7,7 +7,7 @@ import { collection, getDocs, query, orderBy, limit, where } from 'firebase/fire
 import { db } from '../lib/firebase'
 import RiceCard from './RiceCard'
 import clsx from 'clsx'
-const WM_OPTIONS = ['All', 'Hyprland', 'i3', 'MangoWM', 'Sway', 'bspwm', 'dwm', 'Qtile', 'AwesomeWM', 'XFCE', 'MiracleWM', 'KDE', 'GNOME']
+const WM_OPTIONS = ['All', 'Hyprland', 'i3', 'MangoWM', 'Sway', 'Omarchy', 'bspwm', 'dwm', 'Qtile', 'AwesomeWM', 'XFCE', 'MiracleWM', 'KDE', 'GNOME']
 const DISTRO_OPTIONS = ['All', 'Arch', 'NixOS', 'Debian', 'Fedora', 'Ubuntu', 'Void', 'Gentoo', 'EndeavourOS', 'openSUSE']
 
 const SORT_OPTIONS = [
