@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
+
 export default function RiceCard({ rice, index = 0 }) {
-  const date = rice.createdAt?.toDate?.() ?? (rice.createdAt ? new Date(rice.createdAt) : null)
+  const date = rice.created_at ? new Date(rice.created_at) : null
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -14,9 +15,9 @@ export default function RiceCard({ rice, index = 0 }) {
         className="group block border border-white/5 hover:border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] transition-colors duration-300"
       >
         <div className="aspect-video overflow-hidden relative bg-black">
-          {rice.imageUrl ? (
+          {rice.image_url ? (
             <img
-              src={rice.imageUrl}
+              src={rice.image_url}
               alt={rice.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
               loading="lazy"

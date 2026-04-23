@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../lib/firebase'
+import { supabase } from '../lib/supabase'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -14,10 +13,11 @@ export default function AdminLogin() {
   const onSubmit = async ({ email, password }) => {
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
       toast.success('Welcome back.')
       navigate('/admin')
-    } catch {
+    } catch (err) {
       toast.error('Invalid credentials.')
     } finally {
       setLoading(false)
@@ -27,33 +27,37 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Admin access</h1>
-          <p className="text-sm text-[var(--color-muted)] mt-1">Sign in to moderate submissions.</p>
+
+        <div className="mb-10">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-[#e8ff47] mb-3">Admin</p>
+          <h1 className="text-3xl text-white mb-2">Sign in</h1>
+          <p className="text-sm text-white/30">Restricted access. Authorized users only.</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-2">Email</label>
+            <label className="block text-[11px] uppercase tracking-widest text-white/30 mb-2">Email</label>
             <input
               type="email"
               autoComplete="email"
+              placeholder="your@email.com"
               className={clsx(
-                'w-full px-3.5 py-2.5 rounded-lg bg-[var(--color-surface-3)] border text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none transition-all',
-                errors.email ? 'border-red-500/60' : 'border-[var(--color-border)] focus:border-[var(--color-accent)]/60 focus:ring-1 focus:ring-[var(--color-accent)]/20'
+                'w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-sm text-white placeholder:text-white/15 outline-none transition-all',
+                errors.email ? 'border-red-500/40' : 'border-white/8 focus:border-[#e8ff47]/30'
               )}
               {...register('email', { required: true })}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-2">Password</label>
+            <label className="block text-[11px] uppercase tracking-widest text-white/30 mb-2">Password</label>
             <input
               type="password"
               autoComplete="current-password"
+              placeholder="••••••••"
               className={clsx(
-                'w-full px-3.5 py-2.5 rounded-lg bg-[var(--color-surface-3)] border text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none transition-all',
-                errors.password ? 'border-red-500/60' : 'border-[var(--color-border)] focus:border-[var(--color-accent)]/60 focus:ring-1 focus:ring-[var(--color-accent)]/20'
+                'w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-sm text-white placeholder:text-white/15 outline-none transition-all',
+                errors.password ? 'border-red-500/40' : 'border-white/8 focus:border-[#e8ff47]/30'
               )}
               {...register('password', { required: true })}
             />
@@ -62,11 +66,12 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full py-2.5 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-dim)] disabled:opacity-60 text-white text-sm font-medium transition-colors"
+            className="mt-2 w-full py-3 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] disabled:opacity-40 text-black text-sm transition-colors"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+
       </div>
     </div>
   )

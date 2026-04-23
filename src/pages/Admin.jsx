@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, orderBy } from 'firebase/firestore'
-import { auth, db } from '../lib/firebase'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
@@ -11,31 +9,34 @@ import { faCheck, faXmark, faArrowRightFromBracket, faSpinner } from '@fortaweso
 import clsx from 'clsx'
 
 export default function Admin() {
-  const { user } = useAuth()
+  const { user, initialized } = useAuth()
   const navigate = useNavigate()
   const [rices, setRices] = useState([])
   const [loading, setLoading] = useState(true)
   const [acting, setActing] = useState(null)
 
   useEffect(() => {
-    if (user === null) navigate('/admin/login')
-  }, [user])
+    if (initialized && user === null) {
+      navigate('/admin/login')
+    }
+  }, [user, initialized, navigate])
 
   useEffect(() => {
-    if (!user) return
-    fetchPending()
+    if (user) {
+      fetchPending()
+    }
   }, [user])
 
   async function fetchPending() {
     setLoading(true)
     try {
-      const q = query(
-        collection(db, 'rices'),
-        where('status', '==', 'pending'),
-        orderBy('createdAt', 'desc')
-      )
-      const snap = await getDocs(q)
-      setRices(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+      const { data, error } = await supabase
+        .from('rices')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setRices(data)
     } catch (err) {
       console.error(err)
       toast.error('Failed to load pending submissions.')
@@ -47,7 +48,8 @@ export default function Admin() {
   async function approve(id) {
     setActing(id)
     try {
-      await updateDoc(doc(db, 'rices', id), { status: 'approved' })
+      const { error } = await supabase.from('rices').update({ status: 'approved' }).eq('id', id)
+      if (error) throw error
       setRices((prev) => prev.filter((r) => r.id !== id))
       toast.success('Approved!')
     } catch {
@@ -60,7 +62,8 @@ export default function Admin() {
   async function reject(id) {
     setActing(id)
     try {
-      await deleteDoc(doc(db, 'rices', id))
+      const { error } = await supabase.from('rices').delete().eq('id', id)
+      if (error) throw error
       setRices((prev) => prev.filter((r) => r.id !== id))
       toast.success('Rejected and deleted.')
     } catch {
@@ -71,16 +74,18 @@ export default function Admin() {
   }
 
   async function logout() {
-    await signOut(auth)
+    await supabase.auth.signOut()
     navigate('/admin/login')
   }
 
-  if (user === undefined) return null
+  if (!initialized) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-5 h-5 rounded-full border-2 border-white/10 border-t-[#e8ff47] animate-spin" />
+    </div>
+  )
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-24">
-
-      {/* Header */}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-2xl font-semibold text-[var(--color-text)] tracking-tight">Pending submissions</h1>
@@ -97,7 +102,6 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-24">
           <FontAwesomeIcon icon={faSpinner} className="w-5 h-5 text-[var(--color-muted)] animate-spin" />
@@ -110,43 +114,33 @@ export default function Admin() {
       ) : (
         <div className="flex flex-col gap-5">
           {rices.map((rice) => {
-            const createdDate = rice.createdAt?.toDate?.() ?? null
+            const createdDate = rice.created_at ? new Date(rice.created_at) : null
             const isActing = acting === rice.id
             return (
-              <div
-                key={rice.id}
-                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] overflow-hidden"
-              >
+              <div key={rice.id} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-0">
-
-                  {/* Image */}
                   <div className="aspect-video md:aspect-auto bg-[var(--color-surface-3)] overflow-hidden">
-                    {rice.imageUrl ? (
-                      <img src={rice.imageUrl} alt={rice.title} className="w-full h-full object-cover" />
+                    {rice.image_url ? (
+                      <img src={rice.image_url} alt={rice.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xs text-[var(--color-muted)]">no image</div>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="p-5 flex flex-col justify-between gap-4">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <h2 className="text-base font-semibold text-[var(--color-text)] leading-snug">{rice.title}</h2>
                         <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-[11px] text-yellow-400">pending</span>
                       </div>
-
                       <div className="flex items-center gap-3 text-xs text-[var(--color-muted)]">
                         <span>by <strong className="text-[var(--color-text-dim)]">{rice.author || 'anonymous'}</strong></span>
                         {rice.wm && <span className="px-2 py-0.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border)]">{rice.wm}</span>}
                         {rice.distro && <span className="px-2 py-0.5 rounded bg-[var(--color-surface-3)] border border-[var(--color-border)]">{rice.distro}</span>}
                         {createdDate && <span>{formatDistanceToNow(createdDate, { addSuffix: true })}</span>}
                       </div>
-
                       {rice.description && (
                         <p className="text-xs text-[var(--color-muted)] leading-relaxed line-clamp-2">{rice.description}</p>
                       )}
-
                       {rice.palette?.length > 0 && (
                         <div className="flex items-center gap-1 mt-1">
                           {rice.palette.slice(0, 8).map((color, i) => (
@@ -154,15 +148,12 @@ export default function Admin() {
                           ))}
                         </div>
                       )}
-
-                      {rice.githubUrl && (
-                        <a href={rice.githubUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--color-accent)] hover:underline w-fit truncate max-w-xs">
-                          {rice.githubUrl}
+                      {rice.github_url && (
+                        <a href={rice.github_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--color-accent)] hover:underline w-fit truncate max-w-xs">
+                          {rice.github_url}
                         </a>
                       )}
                     </div>
-
-                    {/* Actions */}
                     <div className="flex items-center gap-2 pt-3 border-t border-[var(--color-border)]">
                       <button
                         onClick={() => approve(rice.id)}
