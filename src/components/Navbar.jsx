@@ -10,7 +10,7 @@ const navLinks = [
   { label: 'Gallery', to: '/' },
   { label: 'About', to: '/about' },
   { label: 'Themes', to: '/themes' },
-  { label: 'Guide', to: '/guide' },
+  { label: 'Wiki', to: '/wiki' },
 ]
 
 export default function Navbar() {
