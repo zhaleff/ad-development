@@ -1,4 +1,4 @@
-# Awesome Dotfiles — Project Documentation
+# Awesome Dotfiles (RiceCraft) — Project Documentation
 
 This is the official repository for Awesome Dotfiles, a community gallery for Linux desktop configurations. If you want to contribute or spot something broken, feel free to reach out or open a PR. Help is always welcome. Unsolicited criticism of personal decisions is not.
 
