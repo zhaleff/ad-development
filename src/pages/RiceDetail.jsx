@@ -26,6 +26,7 @@ function CopyButton({ text }) {
     </button>
   )
 }
+
 function Comments({ riceId }) {
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -143,8 +144,23 @@ export default function RiceDetail() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [vote, setVote] = useState(null)
-  const [voting, setVoting] = useState(false)
+  const [voting, setVoting] = useState(true)
   const [bannerLoading, setBannerLoading] = useState(false)
+
+  async function getIpHash() {
+    try {
+      const res = await fetch('https://ifconfig.me/ip')
+      const ip = await res.text()
+      if (!ip) return 'unknown'
+      const msgBuffer = new TextEncoder().encode(ip.trim())
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    } catch {
+      return 'unknown'
+    }
+  }
+
   useEffect(() => {
     async function fetchRice() {
       setLoading(true)
@@ -155,7 +171,7 @@ export default function RiceDetail() {
           .eq('id', id)
           .single()
 
-        if (error || !data) { setNotFound(true); return }
+        if (error || !data) { setNotFound(true); setLoading(false); return }
         setRice(data)
 
         const viewed = localStorage.getItem(`viewed_${id}`)
@@ -164,17 +180,78 @@ export default function RiceDetail() {
           localStorage.setItem(`viewed_${id}`, '1')
         }
 
-        const savedVote = localStorage.getItem(`vote_${id}`)
-        if (savedVote) setVote(savedVote)
+        const localVote = localStorage.getItem(`vote_${id}`)
+        if (localVote) {
+          setVote(localVote)
+        } else {
+          const ipHash = await getIpHash()
+          const { data: existing } = await supabase
+            .from('votes')
+            .select('vote_type')
+            .eq('rice_id', id)
+            .eq('vote_ip', ipHash)
+            .maybeSingle()
+          if (existing) {
+            setVote(existing.vote_type)
+            localStorage.setItem(`vote_${id}`, existing.vote_type)
+          }
+        }
       } catch (err) {
-        console.error(err)
+        console.error('Error fetching rice:', err)
         setNotFound(true)
-      } finally {
-        setLoading(false)
       }
+      setLoading(false)
+      setVoting(false)
     }
     fetchRice()
   }, [id])
+
+  async function handleVote(type) {
+    if (voting) return
+    setVoting(true)
+    try {
+      const localKey = `vote_${id}`
+      const localVote = localStorage.getItem(localKey)
+      const ipHash = await getIpHash()
+
+      let newLikes = rice.likes ?? 0
+      let newDislikes = rice.dislikes ?? 0
+
+      if (localVote === type) {
+        if (type === 'up') newLikes--
+        else newDislikes--
+        localStorage.removeItem(localKey)
+        setVote(null)
+        await supabase.from('votes').delete().eq('rice_id', id).eq('vote_ip', ipHash)
+        toast.success('Vote removed')
+      } else if (localVote) {
+        if (localVote === 'up') newLikes--
+        else newDislikes--
+        if (type === 'up') newLikes++
+        else newDislikes++
+        localStorage.setItem(localKey, type)
+        setVote(type)
+        await supabase.from('votes').update({ vote_type: type }).eq('rice_id', id).eq('vote_ip', ipHash)
+        toast.success('Vote changed!')
+      } else {
+        if (type === 'up') newLikes++
+        else newDislikes++
+        localStorage.setItem(localKey, type)
+        setVote(type)
+        await supabase.from('votes').insert({ rice_id: id, vote_ip: ipHash, vote_type: type })
+        toast.success('Voted!')
+      }
+
+      await supabase.from('rices').update({ likes: Math.max(0, newLikes), dislikes: Math.max(0, newDislikes) }).eq('id', id)
+      setRice(prev => prev ? ({ ...prev, likes: Math.max(0, newLikes), dislikes: Math.max(0, newDislikes) }) : null)
+    } catch (err) {
+      console.error('Vote error:', err)
+      toast.error('Failed to vote')
+    } finally {
+      setVoting(false)
+    }
+  }
+
   async function downloadBanner() {
     if (bannerLoading) return
     setBannerLoading(true)
@@ -310,26 +387,43 @@ export default function RiceDetail() {
     if (voting) return
     setVoting(true)
     try {
-      if (vote === type) {
-        await supabase.rpc(type === 'up' ? 'decrement_likes' : 'decrement_dislikes', { row_id: id })
-        setRice((r) => ({ ...r, [type === 'up' ? 'likes' : 'dislikes']: (r[type === 'up' ? 'likes' : 'dislikes'] ?? 1) - 1 }))
-        localStorage.removeItem(`vote_${id}`)
+      const localKey = `vote_${id}`
+      const localVote = localStorage.getItem(localKey)
+      const ipHash = await getIpHash()
+
+      let newLikes = rice.likes ?? 0
+      let newDislikes = rice.dislikes ?? 0
+
+      if (localVote === type) {
+        if (type === 'up') newLikes--
+        else newDislikes--
+        localStorage.removeItem(localKey)
         setVote(null)
-      } else {
-        if (vote) await supabase.rpc(vote === 'up' ? 'decrement_likes' : 'decrement_dislikes', { row_id: id })
-        await supabase.rpc(type === 'up' ? 'increment_likes' : 'increment_dislikes', { row_id: id })
-        setRice((r) => ({
-          ...r,
-          likes: (r.likes ?? 0) + (type === 'up' ? 1 : 0) - (vote === 'up' ? 1 : 0),
-          dislikes: (r.dislikes ?? 0) + (type === 'down' ? 1 : 0) - (vote === 'down' ? 1 : 0),
-        }))
-        localStorage.setItem(`vote_${id}`, type)
+        await supabase.from('votes').delete().eq('rice_id', id).eq('vote_ip', ipHash)
+        toast.success('Vote removed')
+      } else if (localVote) {
+        if (localVote === 'up') newLikes--
+        else newDislikes--
+        if (type === 'up') newLikes++
+        else newDislikes++
+        localStorage.setItem(localKey, type)
         setVote(type)
-        toast.success(type === 'up' ? 'Liked!' : 'Noted.')
+        await supabase.from('votes').update({ vote_type: type }).eq('rice_id', id).eq('vote_ip', ipHash)
+        toast.success('Vote changed!')
+      } else {
+        if (type === 'up') newLikes++
+        else newDislikes++
+        localStorage.setItem(localKey, type)
+        setVote(type)
+        await supabase.from('votes').insert({ rice_id: id, vote_ip: ipHash, vote_type: type })
+        toast.success('Voted!')
       }
+
+      await supabase.from('rices').update({ likes: Math.max(0, newLikes), dislikes: Math.max(0, newDislikes) }).eq('id', id)
+      setRice(prev => prev ? ({ ...prev, likes: Math.max(0, newLikes), dislikes: Math.max(0, newDislikes) }) : null)
     } catch (err) {
-      console.error(err)
-      toast.error('Failed to vote.')
+      console.error('Vote error:', err)
+      toast.error('Failed to vote')
     } finally {
       setVoting(false)
     }
@@ -363,196 +457,196 @@ export default function RiceDetail() {
     </div>
   )
 
-  const createdDate = rice.created_at ? new Date(rice.created_at) : null
-  const likes = rice.likes ?? 0
-  const dislikes = rice.dislikes ?? 0
-  const total = likes + dislikes
-  const likePercent = total > 0 ? Math.round((likes / total) * 100) : null
+const createdDate = rice.created_at ? new Date(rice.created_at) : null
+const likes = rice.likes ?? 0
+const dislikes = rice.dislikes ?? 0
+const total = likes + dislikes
+const likePercent = total > 0 ? Math.round((likes / total) * 100) : null
 
-  return (
+return (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.4 }}
+    className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-28"
+  >
+    <div className="mb-8">
+      <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-xs text-white/30 hover:text-white transition-colors">
+        <FontAwesomeIcon icon={faArrowLeft} className="w-3 h-3" />
+        Back
+      </button>
+    </div>
+
+    {rice.image_url && (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.05 }}
+        className="rounded-2xl overflow-hidden border border-white/8 mb-10 bg-black"
+      >
+        <img src={rice.image_url} alt={rice.title} className="w-full object-cover max-h-[560px]" />
+      </motion.div>
+    )}
+
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-28"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.1 }}
+      className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-8"
     >
-      <div className="mb-8">
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-xs text-white/30 hover:text-white transition-colors">
-          <FontAwesomeIcon icon={faArrowLeft} className="w-3 h-3" />
-          Back
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-white leading-snug">{rice.title}</h1>
+        <div className="flex items-center gap-3 mt-2.5">
+          <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-medium text-[#e8ff47] uppercase">
+            {rice.author?.[0] ?? '?'}
+          </div>
+          <span className="text-sm text-white/40">{rice.author ?? 'anonymous'}</span>
+          {createdDate && <span className="text-xs text-white/20">{formatDistanceToNow(createdDate, { addSuffix: true })}</span>}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0 pt-1 flex-wrap justify-end">
+        <div className="flex items-center gap-1.5 text-xs text-white/20">
+          <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
+          {rice.views ?? 0}
+        </div>
+        <button
+          onClick={downloadBanner}
+          disabled={bannerLoading}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white hover:border-white/20 disabled:opacity-40 transition-all"
+        >
+          <FontAwesomeIcon icon={faDownload} className="w-3 h-3" />
+          {bannerLoading ? 'Generating...' : 'Banner'}
+        </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white hover:border-white/20 transition-all"
+        >
+          <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3" />
+          Share
         </button>
       </div>
+    </motion.div>
 
-      {rice.image_url && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.05 }}
-          className="rounded-2xl overflow-hidden border border-white/8 mb-10 bg-black"
-        >
-          <img src={rice.image_url} alt={rice.title} className="w-full object-cover max-h-[560px]" />
-        </motion.div>
-      )}
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, delay: 0.1 }}
-        className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-8"
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="flex items-center gap-3 mb-8">
+      <button
+        onClick={() => handleVote('up')}
+        disabled={voting}
+        className={clsx(
+          'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
+          vote === 'up'
+            ? 'bg-[#e8ff47] text-black shadow-[0_0_20px_rgba(232,255,71,0.25)]'
+            : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/70 hover:border-white/15 hover:bg-white/[0.07]'
+        )}
       >
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-white leading-snug">{rice.title}</h1>
-          <div className="flex items-center gap-3 mt-2.5">
-            <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-medium text-[#e8ff47] uppercase">
-              {rice.author?.[0] ?? '?'}
+        <FontAwesomeIcon icon={faThumbsUp} className={clsx('w-3.5 h-3.5 transition-transform duration-150', vote === 'up' ? 'scale-110' : 'group-hover:scale-110')} />
+        <span className="tabular-nums">{likes}</span>
+      </button>
+      <button
+        onClick={() => handleVote('down')}
+        disabled={voting}
+        className={clsx(
+          'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
+          vote === 'down'
+            ? 'bg-white/[0.06] border border-red-500/30 text-red-400'
+            : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/50 hover:border-white/15 hover:bg-white/[0.07]'
+        )}
+      >
+        <FontAwesomeIcon icon={faThumbsDown} className={clsx('w-3.5 h-3.5 transition-transform duration-150', vote === 'down' ? 'scale-110' : 'group-hover:scale-110')} />
+        <span className="tabular-nums">{dislikes}</span>
+      </button>
+      {likePercent !== null && (
+        <div className="flex items-center gap-3 ml-1">
+          <div className="w-px h-5 bg-white/8" />
+          <div className="flex flex-col gap-1">
+            <div className="w-28 h-0.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${likePercent}%` }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+                className="h-full bg-[#e8ff47] rounded-full"
+              />
             </div>
-            <span className="text-sm text-white/40">{rice.author ?? 'anonymous'}</span>
-            {createdDate && <span className="text-xs text-white/20">{formatDistanceToNow(createdDate, { addSuffix: true })}</span>}
+            <span className="text-[10px] text-white/20 tabular-nums">{likePercent}% · {total} votes</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0 pt-1 flex-wrap justify-end">
-          <div className="flex items-center gap-1.5 text-xs text-white/20">
-            <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
-            {rice.views ?? 0}
-          </div>
-          <button
-            onClick={downloadBanner}
-            disabled={bannerLoading}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white hover:border-white/20 disabled:opacity-40 transition-all"
-          >
-            <FontAwesomeIcon icon={faDownload} className="w-3 h-3" />
-            {bannerLoading ? 'Generating...' : 'Banner'}
-          </button>
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 hover:text-white hover:border-white/20 transition-all"
-          >
-            <FontAwesomeIcon icon={faShareAlt} className="w-3 h-3" />
-            Share
-          </button>
-        </div>
-      </motion.div>
+      )}
+    </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => handleVote('up')}
-          disabled={voting}
-          className={clsx(
-            'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
-            vote === 'up'
-              ? 'bg-[#e8ff47] text-black shadow-[0_0_20px_rgba(232,255,71,0.25)]'
-              : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/70 hover:border-white/15 hover:bg-white/[0.07]'
-          )}
-        >
-          <FontAwesomeIcon icon={faThumbsUp} className={clsx('w-3.5 h-3.5 transition-transform duration-150', vote === 'up' ? 'scale-110' : 'group-hover:scale-110')} />
-          <span className="tabular-nums">{likes}</span>
-        </button>
-        <button
-          onClick={() => handleVote('down')}
-          disabled={voting}
-          className={clsx(
-            'group relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200',
-            vote === 'down'
-              ? 'bg-white/[0.06] border border-red-500/30 text-red-400'
-              : 'bg-white/[0.04] border border-white/8 text-white/30 hover:text-white/50 hover:border-white/15 hover:bg-white/[0.07]'
-          )}
-        >
-          <FontAwesomeIcon icon={faThumbsDown} className={clsx('w-3.5 h-3.5 transition-transform duration-150', vote === 'down' ? 'scale-110' : 'group-hover:scale-110')} />
-          <span className="tabular-nums">{dislikes}</span>
-        </button>
-        {likePercent !== null && (
-          <div className="flex items-center gap-3 ml-1">
-            <div className="w-px h-5 bg-white/8" />
-            <div className="flex flex-col gap-1">
-              <div className="w-28 h-0.5 rounded-full bg-white/[0.06] overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${likePercent}%` }}
-                  transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-                  className="h-full bg-[#e8ff47] rounded-full"
+    <div className="border-t border-white/5 mb-10" />
+
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-12">
+      <div className="flex flex-col gap-10">
+        {rice.description && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+            <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">About</p>
+            <p className="text-sm text-white/50 leading-relaxed">{rice.description}</p>
+          </motion.div>
+        )}
+
+        {rice.notes && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Notes</p>
+              <CopyButton text={rice.notes} />
+            </div>
+            <div className="rounded-xl bg-black border border-white/8 p-4 overflow-x-auto">
+              <pre className="text-xs font-mono text-white/40 leading-relaxed whitespace-pre-wrap break-words">{rice.notes}</pre>
+            </div>
+          </motion.div>
+        )}
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
+          <Comments riceId={id} />
+        </motion.div>
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4">
+        <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Specs</p>
+        <div className="rounded-xl border border-white/8 overflow-hidden">
+          {[
+            { label: 'WM / DE', value: rice.wm },
+            { label: 'Palette', value: rice.palette?.length > 0 ? `${rice.palette.length} colors` : 'None' },
+            { label: 'Distro', value: rice.distro },
+            { label: 'License', value: rice.license },
+            { label: 'Date', value: createdDate ? format(createdDate, 'MMM d, yyyy') : null },
+          ].filter(r => r.value).map(({ label, value }, i, arr) => (
+            <div key={label} className={clsx('px-4 py-3 flex flex-col gap-0.5', i < arr.length - 1 && 'border-b border-white/5')}>
+              <span className="text-[9px] text-white/20 uppercase tracking-wider">{label}</span>
+              <span className="text-xs text-white/70 font-medium">{value}</span>
+            </div>
+          ))}
+        </div>
+
+        {rice.palette?.length > 0 && (
+          <div className="rounded-xl border border-white/8 p-4">
+            <p className="text-[9px] text-white/20 uppercase tracking-wider mb-3">Colors</p>
+            <div className="flex flex-wrap gap-1.5">
+              {rice.palette.map((color, i) => (
+                <div
+                  key={i}
+                  title={color}
+                  className="w-6 h-6 rounded-md border border-white/10 cursor-pointer hover:scale-110 transition-transform"
+                  style={{ backgroundColor: color }}
+                  onClick={() => { navigator.clipboard.writeText(color); toast.success(color) }}
                 />
-              </div>
-              <span className="text-[10px] text-white/20 tabular-nums">{likePercent}% · {total} votes</span>
+              ))}
             </div>
           </div>
         )}
+
+        {rice.github_url && (
+          <a
+            href={rice.github_url}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-xs font-medium transition-colors"
+          >
+            <FontAwesomeIcon icon={faGithub} className="w-3.5 h-3.5" />
+            View dotfiles
+          </a>
+        )}
       </motion.div>
-
-      <div className="border-t border-white/5 mb-10" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-12">
-        <div className="flex flex-col gap-10">
-          {rice.description && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-white/20 mb-3">About</p>
-              <p className="text-sm text-white/50 leading-relaxed">{rice.description}</p>
-            </motion.div>
-          )}
-
-          {rice.notes && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Notes</p>
-                <CopyButton text={rice.notes} />
-              </div>
-              <div className="rounded-xl bg-black border border-white/8 p-4 overflow-x-auto">
-                <pre className="text-xs font-mono text-white/40 leading-relaxed whitespace-pre-wrap break-words">{rice.notes}</pre>
-              </div>
-            </motion.div>
-          )}
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
-            <Comments riceId={id} />
-          </motion.div>
-        </div>
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4">
-          <p className="text-[11px] font-medium uppercase tracking-widest text-white/20">Specs</p>
-          <div className="rounded-xl border border-white/8 overflow-hidden">
-            {[
-              { label: 'WM / DE', value: rice.wm },
-              { label: 'Palette', value: rice.palette?.length > 0 ? `${rice.palette.length} colors` : 'None' },
-              { label: 'Distro', value: rice.distro },
-              { label: 'License', value: rice.license },
-              { label: 'Date', value: createdDate ? format(createdDate, 'MMM d, yyyy') : null },
-            ].filter(r => r.value).map(({ label, value }, i, arr) => (
-              <div key={label} className={clsx('px-4 py-3 flex flex-col gap-0.5', i < arr.length - 1 && 'border-b border-white/5')}>
-                <span className="text-[9px] text-white/20 uppercase tracking-wider">{label}</span>
-                <span className="text-xs text-white/70 font-medium">{value}</span>
-              </div>
-            ))}
-          </div>
-
-          {rice.palette?.length > 0 && (
-            <div className="rounded-xl border border-white/8 p-4">
-              <p className="text-[9px] text-white/20 uppercase tracking-wider mb-3">Colors</p>
-              <div className="flex flex-wrap gap-1.5">
-                {rice.palette.map((color, i) => (
-                  <div
-                    key={i}
-                    title={color}
-                    className="w-6 h-6 rounded-md border border-white/10 cursor-pointer hover:scale-110 transition-transform"
-                    style={{ backgroundColor: color }}
-                    onClick={() => { navigator.clipboard.writeText(color); toast.success(color) }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {rice.github_url && (
-            <a
-              href={rice.github_url}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#e8ff47] hover:bg-[#d4eb30] text-black text-xs font-medium transition-colors"
-            >
-              <FontAwesomeIcon icon={faGithub} className="w-3.5 h-3.5" />
-              View dotfiles
-            </a>
-          )}
-        </motion.div>
-      </div>
-    </motion.div>
-  )
+    </div>
+  </motion.div>
+)
 }
