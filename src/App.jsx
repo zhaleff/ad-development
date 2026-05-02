@@ -12,6 +12,7 @@ const Submit = lazy(() => import('./pages/Submit'))
 const RiceDetail = lazy(() => import('./pages/RiceDetail'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Themes = lazy(() => import('./pages/Themes'))
+const Gallery = lazy(() => import('./pages/Gallery'))
 const AdminLogin = lazy(() => import('./pages/AdminLogin'))
 const Wiki = lazy(() => import('./pages/Wiki'))
 const WikiDetail = lazy(() => import('./pages/WikiDetail'))
@@ -34,9 +35,10 @@ export default function App() {
           <main className="flex-1">
             <Suspense fallback={<PageLoader />}>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/gallery" element={<Gallery />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/themes" element={<Themes />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/submit" element={<Submit />} />
                 <Route path="/rice/:id" element={<RiceDetail />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
